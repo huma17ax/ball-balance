@@ -21,7 +21,7 @@ export default {
       intervalID: undefined,
       width: undefined,
       height: undefined,
-      fps: 10
+      fps: 120
     }
   },
   methods: {
@@ -36,11 +36,11 @@ export default {
   mounted: function () {
     this.width = window.innerWidth
     this.height = window.innerHeight
-    GD.deltaTime = 1000 / this.fps
+    GD.deltaTime = 1 / this.fps
     window.addEventListener('resize', this.windowResize)
     this.intervalID = setInterval(() => {
       this.run()
-    }, GD.deltaTime)
+    }, 1000 * GD.deltaTime)
   },
   beforeDestroy: function () {
     window.removeEventListener('resize', this.windowResize)
