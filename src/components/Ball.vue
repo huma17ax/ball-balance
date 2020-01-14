@@ -43,7 +43,7 @@ export default {
       collisionPoint: 10,// * 4 
       pressedKey:{}, 
       dots: [], 
-      corn:{x:0,y:0} 
+      corn:{x:0,y:0}
     } 
   }, 
   computed: { 
@@ -54,12 +54,24 @@ export default {
       return this.chipsize /2 
     } 
   }, 
-  methods: { 
+  methods: {
     dotsStyle: function (x,y) { 
       return {top: 'calc(' + y + '% - ' + 2 + 'px)', left: 'calc(' + x + '% - ' + 2 + 'px)'} 
     }, 
-
+    Rec2Pol: function (x,y) {//直交→極
+      var c = Math.sqrt(Math.pow(x,2) + Math.pow(y,2))
+      var d = Math.atan(y/x);
+      if (x<0) d += Math.PI;
+      if (x>=0 && y<0) d += Math.PI * 2;
+      return {c:c, deg:d}
+    },
+    Pol2Rec: function (c,deg) {//極→直交
+      var x = c * Math.cos(deg)
+      var y = c * Math.sin(deg)
+      return {x:x, y:y}
+    },
     run: function () { 
+
       //力をかける 
       var force = {x:0, y:0} 
       if (this.pressedKey["DownArrow"]){ 
