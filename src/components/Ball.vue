@@ -22,6 +22,7 @@
 <script> 
 
 import GD from '@/assets/GrobalData' 
+import { mapState } from 'vuex'
 
 export default { 
   name: 'Ball', 
@@ -46,7 +47,8 @@ export default {
       corn:{x:0,y:0} 
     } 
   }, 
-  computed: { 
+  computed: {
+    ...mapState('manager',['fps']),
     posStyle: function () { 
       return {top: 'calc(' + this.pos.y + '% - ' + this.size / 2 + 'px)', left: 'calc(' + this.pos.x + '% - ' + this.size / 2 + 'px)'} 
     }, 
@@ -59,7 +61,8 @@ export default {
       return {top: 'calc(' + y + '% - ' + 2 + 'px)', left: 'calc(' + x + '% - ' + 2 + 'px)'} 
     }, 
 
-    run: function () { 
+    run: function () {
+      console.log(this.fps)
       //力をかける 
       var force = {x:0, y:0} 
       if (this.pressedKey["DownArrow"]){ 
