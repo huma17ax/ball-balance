@@ -22,6 +22,7 @@
 <script> 
 
 import GD from '@/assets/GrobalData' 
+import { mapState } from 'vuex'
 
 export default { 
   name: 'Ball', 
@@ -46,7 +47,8 @@ export default {
       corn:{x:0,y:0} 
     } 
   }, 
-  computed: { 
+  computed: {
+    ...mapState('manager',['deltaTime','updateFlg','screenWidth', 'screenHeight']),
     posStyle: function () { 
       return {top: 'calc(' + this.pos.y + '% - ' + this.size / 2 + 'px)', left: 'calc(' + this.pos.x + '% - ' + this.size / 2 + 'px)'} 
     }, 
@@ -70,7 +72,8 @@ export default {
       var y = c * Math.sin(deg) 
       return {x:x, y:y} 
     }, 
-    run: function () { 
+    run: function () {
+      console.log(this.screenWidth + ' / ' + this.screenHeight)
       //力をかける 
       var force = {x:0, y:0} 
       if (this.pressedKey["DownArrow"]){ 

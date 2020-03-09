@@ -10,6 +10,7 @@
 <script>
 import flame from './Flame'
 import GD from '@/assets/GrobalData'
+import { mapState } from 'vuex'
 
 export default {
   name: 'Main',
@@ -24,16 +25,21 @@ export default {
       fps: 120
     }
   },
+  computed: {
+    ...mapState('manager',['deltaTime'])
+  },
   methods: {
     windowResize: function () {
       this.width = window.innerWidth
       this.height = window.innerHeight
+      this.$store.dispatch('manager/setScreenSize', {width:this.width, height:this.height})
     },
     run: function () {
       this.$refs.flame.run()
     }
   },
   mounted: function () {
+    this.$store.dispatch('manager/startUpdateAsync')
     this.width = window.innerWidth
     this.height = window.innerHeight
     GD.deltaTime = 1 / this.fps
@@ -45,6 +51,7 @@ export default {
   beforeDestroy: function () {
     window.removeEventListener('resize', this.windowResize)
     clearInterval(this.intervalID)
+    this.$store.dispatch('manager/stopUpdateAsync')
   }
 }
 </script>
