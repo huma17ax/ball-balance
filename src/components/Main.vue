@@ -18,27 +18,27 @@ export default {
     }
   },
   computed: {
-    ...mapState('manager',['deltaTime', 'updateFlg'])
+    ...mapState('manager', ['deltaTime', 'updateFlg'])
   },
   methods: {
     windowResize: function () {
-      this.$store.dispatch('manager/setScreenSize', {width:window.innerWidth, height:window.innerHeight})
+      this.$store.dispatch('manager/setScreenSize', {width: window.innerWidth, height: window.innerHeight})
     },
     run: function () {
       this.$refs.flame.run()
     }
   },
   watch: {
-      updateFlg: function () {
-          this.run()
-      }
+    updateFlg: function () {
+      this.run()
+    }
   },
   mounted: function () {
-    this.$store.dispatch('manager/setScreenSize', {width:window.innerWidth, height:window.innerHeight})
+    this.$store.dispatch('manager/setScreenSize', {width: window.innerWidth, height: window.innerHeight})
     this.$store.dispatch('manager/loadMapChips')
-    .then(()=>{
+      .then(() => {
         this.$store.dispatch('manager/startUpdateAsync')
-    })
+      })
     window.addEventListener('resize', this.windowResize)
   },
   beforeDestroy: function () {
