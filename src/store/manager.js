@@ -8,16 +8,23 @@ const state = {
     screenHeight: undefined,
     mapchips: [],
     mapWidth: undefined,
-    mapHeight: undefined
+    mapHeight: undefined,
+    startPos: {x:0, y:0}
+}
+
+const getters = {
+    mapchipSize(state) {
+        return Math.min(state.screenWidth / state.mapWidth, state.screenHeight / state.mapHeight)
+    }
 }
 
 const actions = {
     startUpdateAsync({ commit, state }) {
+        commit('setDeltaTime', 1 / state.fps)
         var id = setInterval(() => {
             commit('inversionUpdateFlg')
-        }, 1000 * state.deltaTime)
+        }, 1000 / state.fps)
         commit('setIntervalID', id)
-        commit('setDeltaTime', 1 / state.fps)
     },
     stopUpdateAsync({ commit,state }) {
         clearInterval(state.intervalID)
@@ -37,8 +44,9 @@ const actions = {
             ['black','white','white','white','white','white','black'], 
             ['black','black','black','black','black','black','black'] 
         ]
-        commit('setMapChips', {chips:chips, width:chips[0].length, height: chips.length})
-    }
+        commit('setMapChips', chips)
+        commit('setStartPos', {x: 1, y: 1})
+    },
 }
 
 const mutations = {
@@ -57,10 +65,13 @@ const mutations = {
     setScreenWidth(state, width) {
         state.screenWidth = width
     },
-    setMapChips(state, { chips, width, height }) {
+    setMapChips(state, chips) {
         state.mapchips = chips
-        state.mapWidth = width
-        state.mapHeight = height
+        state.mapWidth = chips[0].length
+        state.mapHeight = chips.length
+    },
+    setStartPos(state, pos) {
+        state.startPos = pos
     }
 }
 
@@ -68,5 +79,6 @@ export default {
     namespaced: true,
     state,
     actions,
+    getters,
     mutations
 }

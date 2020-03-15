@@ -1,15 +1,11 @@
 <template>
     <div class="content">
-        <flame
-        ref='flame'
-        v-bind:widthsize="width"
-        v-bind:heightsize="height"></flame>
+        <flame ref='flame'></flame>
     </div>
 </template>
 
 <script>
 import flame from './Flame'
-import GD from '@/assets/GrobalData'
 import { mapState } from 'vuex'
 
 export default {
@@ -19,38 +15,34 @@ export default {
   },
   data: function () {
     return {
-      intervalID: undefined,
-      width: undefined,
-      height: undefined,
-      fps: 120
     }
   },
   computed: {
-    ...mapState('manager',['deltaTime'])
+    ...mapState('manager',['deltaTime', 'updateFlg'])
   },
   methods: {
     windowResize: function () {
-      this.width = window.innerWidth
-      this.height = window.innerHeight
-      this.$store.dispatch('manager/setScreenSize', {width:this.width, height:this.height})
+      this.$store.dispatch('manager/setScreenSize', {width:window.innerWidth, height:window.innerHeight})
     },
     run: function () {
       this.$refs.flame.run()
     }
   },
+  watch: {
+      updateFlg: function () {
+          this.run()
+      }
+  },
   mounted: function () {
-    this.$store.dispatch('manager/startUpdateAsync')
-    this.width = window.innerWidth
-    this.height = window.innerHeight
-    GD.deltaTime = 1 / this.fps
+    this.$store.dispatch('manager/setScreenSize', {width:window.innerWidth, height:window.innerHeight})
+    this.$store.dispatch('manager/loadMapChips')
+    .then(()=>{
+        this.$store.dispatch('manager/startUpdateAsync')
+    })
     window.addEventListener('resize', this.windowResize)
-    this.intervalID = setInterval(() => {
-      this.run()
-    }, 1000 * GD.deltaTime)
   },
   beforeDestroy: function () {
     window.removeEventListener('resize', this.windowResize)
-    clearInterval(this.intervalID)
     this.$store.dispatch('manager/stopUpdateAsync')
   }
 }

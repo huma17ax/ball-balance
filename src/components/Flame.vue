@@ -11,53 +11,29 @@
             <!--{{chip}}--> 
             </div> 
         </div> 
-        <ball ref="ball" 
-        v-bind:chipsize="mapchipSize" 
-        v-bind:mapchips="mapchips" 
-        v-bind:startpos="startpos"></ball> 
+        <ball ref="ball"></ball> 
     </div> 
 </template> 
 
 <script> 
-import ball from './Ball' 
-import GD from '@/assets/GrobalData' 
+import ball from './Ball'
+import {mapState, mapGetters} from 'vuex'
 
 export default { 
-  name: 'flame', 
-  props: ['widthsize', 'heightsize'], 
+  name: 'flame',
   components: { 
     ball 
   }, 
   data: function () { 
-    return { 
-      mapchips: [ 
-        ['B','B','B','B','B','B','B'], 
-        ['B','W','W','W','W','W','B'], 
-        ['B','W','B','W','B','W','B'], 
-        ['B','W','W','W','W','W','B'], 
-        ['B','W','B','W','B','W','B'], 
-        ['B','W','W','W','W','W','B'], 
-        ['B','B','B','B','B','B','B'] 
-      ], 
-      chipRow: undefined, 
-      chipCol: undefined, 
-      chipsize: undefined, 
-      colorSignDefine: { 
-        'B': 'black', 
-        'Y': 'yellow', 
-        'W': 'white', 
-        'R': 'red', 
-        'BR': 'brown' 
-      }, 
-      startpos: {x: 1, y: 1} 
+    return {
     } 
   }, 
   methods: { 
-    run: function () { 
-      this.$refs.ball.run() 
+    run: function () {
+      this.$refs.ball.run()
     }, 
     mapchipStyle: function (row,col) { 
-      var color = this.colorSignDefine[this.mapchips[row][col]]; 
+      var color = this.mapchips[row][col]; 
       return { 
         'width': this.mapchipSize + 'px', 
         'height': this.mapchipSize + 'px', 
@@ -65,38 +41,39 @@ export default {
     }, 
   }, 
   computed: { 
+    ...mapState('manager', ['screenWidth', 'screenHeight', 'mapchips', 'mapWidth', 'mapHeight']),
+    ...mapGetters('manager',['mapchipSize']),
     flameStyle: function () { 
-      var size_w = this.mapchipsize * this.chipCol 
-      var size_h = this.mapchipSize * this.chipRow 
-      return {'width': size_w + 'px', 'height': size_h + 'px'} 
+      var size_w = this.mapchipSize * this.mapHeight 
+      var size_h = this.mapchipSize * this.mapWidth
+      return {'width': size_w + 'px', 'height': size_h + 'px'}
     }, 
     marginStyle: function () { 
-      var size_tb = (this.heightsize - this.mapchipSize * this.chipRow) /2 
-      var size_lr = (this.widthsize - this.mapchipSize * this.chipCol) /2 
+      var size_tb = (this.screenHeight - this.mapchipSize * this.mapWidth) /2 
+      var size_lr = (this.screenWidth - this.mapchipSize * this.mapHeight) /2 
       return { 
         'margin-top': size_tb + 'px', 
         'margin-bottom': size_tb + 'px', 
         'margin-left': size_lr + 'px', 
         'margin-right': size_lr + 'px'} 
     }, 
-    mapchipSize: function () { 
-      return Math.min(this.widthsize / this.chipCol, this.heightsize / this.chipRow); 
-    }, 
+    // mapchipSize: function () {
+    //   var size = Math.min(this.screenWidth / this.mapWidth, this.screenHeight / this.mapHeight)
+    //   console.log(size)
+    // //   this.$store.dispatch('manager/setMapchipSize', size)
+    //   return size
+    // }, 
     styles: function () {
  
     } 
-  }, 
-  mounted: function () { 
-    this.chipRow = this.mapchips.length; 
-    this.chipCol = this.mapchips[0].length; 
-  } 
+  }
 } 
 </script> 
  
 <style scoped>
  
 .flame { 
-    border: solid black; 
+    /* border: solid black; */
     position: relative; 
 } 
  
