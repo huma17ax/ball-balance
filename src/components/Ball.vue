@@ -2,7 +2,7 @@
     <div> 
         <div 
         class="ball" 
-        v-bind:style="[posStyle, {'height': size+'px', 'width': size+'px'}]" 
+        v-bind:style="[posStyle, {'height': ballSize+'px', 'width': ballSize+'px'}]" 
         > 
         </div> 
      
@@ -21,12 +21,10 @@
 
 <script> 
 
-import GD from '@/assets/GrobalData' 
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default { 
-  name: 'Ball', 
-  props: ['chipsize', 'startpos', 'mapchips'], 
+  name: 'Ball',
   data: function () { 
     return { 
       pos: {/*フレームサイズに対するパーセンテージ*/ 
@@ -38,8 +36,8 @@ export default {
         x: 0, 
         y: 0 
       }, 
-      keyForce: 2, 
-      friction: 0.8, 
+      keyForce: 240, 
+      friction: 96, 
       repulsion: 0.5, 
       collisionPoint: 10,// * 4 
       pressedKey:{}, 
@@ -48,14 +46,21 @@ export default {
     } 
   }, 
   computed: {
-    ...mapState('manager',['deltaTime','updateFlg','screenWidth', 'screenHeight']),
+    ...mapState('manager',['deltaTime','updateFlg','screenWidth', 'screenHeight', 'mapchips','mapWidth', 'mapHeight', 'startPos']),
+    ...mapGetters('manager',['mapchipSize']),
     posStyle: function () { 
-      return {top: 'calc(' + this.pos.y + '% - ' + this.size / 2 + 'px)', left: 'calc(' + this.pos.x + '% - ' + this.size / 2 + 'px)'} 
+      return {top: 'calc(' + this.pos.y + '% - ' + this.ballSize / 2 + 'px)', left: 'calc(' + this.pos.x + '% - ' + this.ballSize / 2 + 'px)'} 
     }, 
-    size: function () { 
-      return this.chipsize /2 
-    } 
-  }, 
+    ballSize: function () { 
+      return this.mapchipSize /2 
+    }
+  },
+  watch: {
+    startPos: function () {
+      this.pos.x = 100 * (this.startPos.x+0.5) / this.mapWidth
+      this.pos.y = 100 * (this.startPos.y+0.5) / this.mapHeight
+    }
+  },
   methods: { 
     dotsStyle: function (x,y) { 
       return {top: 'calc(' + y + '% - ' + 2 + 'px)', left: 'calc(' + x + '% - ' + 2 + 'px)'} 
@@ -73,33 +78,33 @@ export default {
       return {x:x, y:y} 
     }, 
     run: function () {
-      console.log(this.screenWidth + ' / ' + this.screenHeight)
+    //   console.log(this.screenWidth + ' / ' + this.screenHeight)
       //力をかける 
       var force = {x:0, y:0} 
       if (this.pressedKey["DownArrow"]){ 
-        force.y += this.keyForce 
+        force.y += this.keyForce
       } 
       if (this.pressedKey["UpArrow"]) { 
-        force.y -= this.keyForce 
+        force.y -= this.keyForce
       } 
       if (this.pressedKey["LeftArrow"]) { 
-        force.x -= this.keyForce 
+        force.x -= this.keyForce
       } 
       if (this.pressedKey["RightArrow"]){ 
-        force.x += this.keyForce 
+        force.x += this.keyForce
       } 
       //摩擦・速度と逆方向 
       if (this.velocity.x!=0 || this.velocity.y!=0) { 
         var diff = Math.sqrt(Math.pow(this.velocity.x,2) + Math.pow(this.velocity.y,2)) 
-        force.x -= this.friction * this.velocity.x / diff 
-        force.y -= this.friction * this.velocity.y / diff 
+        force.x -= this.friction * this.velocity.x / diff
+        force.y -= this.friction * this.velocity.y / diff
       } 
 
       // console.log(this.velocity.x + " : " + this.velocity.y) 
 
       //速度の更新 
-      var tmpX = this.velocity.x + force.x 
-      var tmpY = this.velocity.y + force.y 
+      var tmpX = this.velocity.x + force.x * this.deltaTime
+      var tmpY = this.velocity.y + force.y * this.deltaTime
       if ((tmpX*this.velocity.x < 0 && tmpY*this.velocity.y < 0) 
       || (tmpX*this.velocity.x < 0 && tmpY==0 && this.velocity.y==0) 
       || (tmpX==0 && this.velocity.x==0 && tmpY*this.velocity.y < 0)) { 
@@ -115,107 +120,91 @@ export default {
 
       // console.log(this.velocity.x + " : " + this.velocity.y) 
       // console.log(this.pos.x + " / " + this.pos.y) 
-
-      //移動 
-      this.pos.x += this.velocity.x/2/this.mapchips[0].length*GD.deltaTime 
-      this.pos.y += this.velocity.y/2/this.mapchips.length*GD.deltaTime 
  
       //衝突判定 
-      var radiusY = 100/this.mapchips.length*this.size/this.chipsize/2 
-      var radiusX = 100/this.mapchips[0].length*this.size/this.chipsize/2 
+      var radiusY = 100/this.mapHeight*this.ballSize/this.mapchipSize/2 
+      var radiusX = 100/this.mapWidth*this.ballSize/this.mapchipSize/2 
 
-      // console.log(this.pos.x + " / " + this.pos.y) 
+    //   console.log(this.pos.x + " / " + this.pos.y) 
 
       //上下左右 
       var upside = {x: this.pos.x, y: this.pos.y - radiusY} 
-      if (this.mapchips[Math.floor(upside.y/100*this.mapchips.length)][Math.floor(upside.x/100*this.mapchips[0].length)]=='B'){ 
-        this.pos.y = (Math.floor(upside.y/100*this.mapchips.length) + 1) *100/this.mapchips.length + radiusY 
+      if (this.mapchips[Math.floor(upside.y/100*this.mapHeight)][Math.floor(upside.x/100*this.mapWidth)]=='black'){ 
+        this.pos.y = (Math.floor(upside.y/100*this.mapHeight) + 1) *100/this.mapHeight + radiusY 
         this.velocity.y = -this.velocity.y * this.repulsion 
       } 
       var downside = {x: this.pos.x, y: this.pos.y + radiusY} 
-      if (this.mapchips[Math.floor(downside.y/100*this.mapchips.length)][Math.floor(downside.x/100*this.mapchips[0].length)]=='B'){ 
-        this.pos.y = (Math.floor(downside.y/100*this.mapchips.length)) *100/this.mapchips.length - radiusY 
+      if (this.mapchips[Math.floor(downside.y/100*this.mapHeight)][Math.floor(downside.x/100*this.mapWidth)]=='black'){ 
+        this.pos.y = (Math.floor(downside.y/100*this.mapHeight)) *100/this.mapHeight - radiusY 
         this.velocity.y = -this.velocity.y * this.repulsion 
       } 
       var leftside = {x: this.pos.x - radiusX, y:this.pos.y} 
-      if (this.mapchips[Math.floor(leftside.y/100*this.mapchips.length)][Math.floor(leftside.x/100*this.mapchips[0].length)]=='B'){ 
-        this.pos.x = (Math.floor(leftside.x/100*this.mapchips[0].length) + 1) *100/this.mapchips[0].length + radiusX 
+      if (this.mapchips[Math.floor(leftside.y/100*this.mapHeight)][Math.floor(leftside.x/100*this.mapWidth)]=='black'){ 
+        this.pos.x = (Math.floor(leftside.x/100*this.mapWidth) + 1) *100/this.mapWidth + radiusX 
         this.velocity.x = -this.velocity.x * this.repulsion 
       } 
       var rightside = {x: this.pos.x + radiusX, y:this.pos.y} 
-      if (this.mapchips[Math.floor(rightside.y/100*this.mapchips.length)][Math.floor(rightside.x/100*this.mapchips[0].length)]=='B'){ 
-        this.pos.x = (Math.floor(rightside.x/100*this.mapchips[0].length)) *100/this.mapchips[0].length - radiusX 
+      if (this.mapchips[Math.floor(rightside.y/100*this.mapHeight)][Math.floor(rightside.x/100*this.mapWidth)]=='black'){ 
+        this.pos.x = (Math.floor(rightside.x/100*this.mapWidth)) *100/this.mapWidth - radiusX 
         this.velocity.x = -this.velocity.x * this.repulsion 
       } 
 
-      //弧  右上左下 
-      for (var i=0;i<4;i++){ 
-        for (var j=0;j<this.collisionPoint;j++){ 
+      //弧  右上左下
 
-          var angle = i*Math.PI/2 + (j+1)*(Math.PI/2/(this.collisionPoint+1)); 
+      //接触する可能性のある角の座標(%)
+      var tend = {
+        x: this.pos.x/100*this.mapWidth - Math.floor(this.pos.x/100*this.mapWidth)-0.5,
+        y: this.pos.y/100*this.mapHeight - Math.floor(this.pos.y/100*this.mapHeight)-0.5,
+      }
 
-          //console.log(i + " : " + j + " / " + angle) 
+      var corner = {
+          x: Math.floor(this.pos.x/100*this.mapWidth)*100/this.mapWidth + (tend.x>0 ? 100/this.mapWidth : 0),
+          y: Math.floor(this.pos.y/100*this.mapHeight)*100/this.mapHeight + (tend.y>0 ? 100/this.mapHeight: 0)
+      }
 
-          var point = {x:this.pos.x + radiusX*Math.cos(angle), y:this.pos.y + radiusY*Math.sin(angle)} 
+      //そこが角であるかどうか
+      var isCorner = this.mapchips[Math.floor(this.pos.y/100*this.mapHeight)+(tend.y<0?-1:1)][Math.floor(this.pos.x/100*this.mapWidth) + (tend.x<0?-1:1)]=='black';
+      isCorner = isCorner && this.mapchips[Math.floor(this.pos.y/100*this.mapHeight)][Math.floor(this.pos.x/100*this.mapWidth) + (tend.x<0?-1:1)]=='white';
+      isCorner = isCorner && this.mapchips[Math.floor(this.pos.y/100*this.mapHeight)+(tend.y<0?-1:1)][Math.floor(this.pos.x/100*this.mapWidth)]=='white';
 
-          this.dots[i*this.collisionPoint + j] = point 
-          // console.log("!!! " + angle + " / " + radiusX*Math.cos(angle) + ":" + radiusY*Math.sin(angle)) 
+      if (isCorner) {
+        //   console.log(this.mapchipSize)
+        //   console.log(corner.x)
+          var cx1 = this.mapchipSize*this.mapWidth*corner.x/100;
+          var cy1 = this.mapchipSize*this.mapHeight*corner.y/100;
+          var cx2 = this.mapchipSize*this.mapWidth*this.pos.x/100;
+          var cy2 = this.mapchipSize*this.mapHeight*this.pos.y/100;
 
-          if (this.mapchips[Math.floor(point.y/100*this.mapchips.length)][Math.floor(point.x/100*this.mapchips[0].length)]=='B'){ 
+        //   console.log(cx1 + " : " + cx2 + " / " + cy1 + " : " + cy2 + " / " + this.ballSize/2)
 
-            console.log("radius == colision ~~ " + angle) 
-            // console.log(Math.cos(0) + " $ " + Math.sin(0)) 
-            // console.log(Math.cos(Math.PI/2) + " $ " + Math.sin(Math.PI/2)) 
-            // console.log(Math.cos(Math.PI) + " $ " + Math.sin(Math.PI)) 
-            // console.log(Math.cos(Math.PI/2*3) + " $ " + Math.sin(Math.PI/2*3)) 
+          if (Math.sqrt(Math.pow(cx1-cx2,2) + Math.pow(cy1-cy2,2)) < this.ballSize/2) {
+            //衝突している
 
-            //角の位置を算出 
-            var corner = {x:Math.floor(point.x/100*this.mapchips[0].length)*100/this.mapchips[0].length, y:Math.floor(point.y/100*this.mapchips.length)*100/this.mapchips.length} 
-            if (i==1 || i==2) corner.x += 100/this.mapchips[0].length 
-            if (i==2 || i==3) corner.y += 100/this.mapchips.length 
+            //位置の調整
+            var pol_collision = this.Rec2Pol(this.mapchipSize*this.mapWidth*(this.pos.x-corner.x)/100, this.mapchipSize*this.mapHeight*(this.pos.y-corner.y)/100);
+            var rec = this.Pol2Rec(this.ballSize/2, pol_collision.deg)
+            this.pos.x = corner.x + (rec.x/this.mapchipSize/this.mapWidth)*100
+            this.pos.y = corner.y + (rec.y/this.mapchipSize/this.mapHeight)*100
 
-            this.corn = corner 
+            //反発
+            if (this.velocity.x != 0 && this.velocity.y != 0) {
 
-            //位置を調整(検出しない程度に外側に) 
-            var theta_corner = Math.atan((this.pos.y-corner.y)/(this.pos.x-corner.x)) 
-            // if (i==1 || i==2) theta_corner = -theta_corner 
-            if (i==0 || i==3) this.pos.x = corner.x - radiusX * Math.cos(theta_corner) 
-            else this.pos.x = corner.x + radiusX * Math.cos(theta_corner) 
+              var pol_vel = this.Rec2Pol(this.velocity.x, this.velocity.y)
+              var rec = this.Pol2Rec(pol_vel.c, pol_vel.deg-pol_collision.deg)
+              var pol_vel2 = this.Rec2Pol(-rec.x*this.repulsion, rec.y)
+              var rec2 = this.Pol2Rec(pol_vel2.c, pol_vel2.deg+pol_collision.deg)
+              this.velocity.x = rec2.x
+              this.velocity.y = rec2.y
 
-            if (i==0 || i==3) this.pos.y = corner.y - radiusY * Math.sin(theta_corner) 
-            else this.pos.y = corner.y + radiusY * Math.sin(theta_corner) 
+            }
 
-            console.log("i=" + i + " j=" + j) 
-            console.log(corner.x + " / " + corner.y + " : ") 
+          }
 
-            //角度差
-            var theta_vel = Math.atan(this.velocity.y/this.velocity.x) 
-            var theta = theta_corner - theta_vel 
-            // if (theta < 0) theta+= Math.PI*2 
- 
-            console.log(corner + " - " + theta_vel + " - " + theta_corner) 
-            console.log("! " + theta) 
+      }
 
-            //速度の基底変換 
-            var toCorner = Math.sqrt(Math.pow(this.velocity.x,2)+Math.pow(this.velocity.y,2)) * Math.cos(theta) 
-            var orthogonal = Math.sqrt(Math.pow(this.velocity.x,2)+Math.pow(this.velocity.y,2)) * Math.sin(theta) 
-
-            //角方向の速度を反転してxy基底に戻す 
-            var toCorner = -toCorner * this.repulsion 
-            var theta_dash = Math.atan(orthogonal / toCorner) 
-
-            var new_theta = theta_dash + theta_corner - Math.PI 
-
-            this.velocity.x = Math.sqrt(Math.pow(toCorner,2)+Math.pow(orthogonal,2)) * Math.cos(new_theta) * (i==0 || i==3 ? -1 : 1) 
-            this.velocity.y = Math.sqrt(Math.pow(toCorner,2)+Math.pow(orthogonal,2)) * Math.sin(new_theta) * (i==0 || i==3 ? -1 : 1) 
-
-            console.log(orthogonal + " - " + toCorner + " - " + new_theta) 
- 
-            //this.pos.x = (Math.floor(point.x/100*this.mapchips[0].length)) *100/this.mapchips[0].length - radiusX 
-            //this.velocity.x = -this.velocity.x * this.repulsion 
-          } 
-        } 
-      } 
+      //移動 
+      this.pos.x += this.velocity.x/2/this.mapWidth*this.deltaTime 
+      this.pos.y += this.velocity.y/2/this.mapHeight*this.deltaTime
  
     }, 
     KeyDown: function (e) { 
@@ -231,11 +220,11 @@ export default {
       if (e.keyCode==37) this.pressedKey["LeftArrow"] = false 
     } 
   }, 
-  mounted: function () { 
-    this.pos.x = 100 * (this.startpos.x+0.5) / this.mapchips[0].length 
-    this.pos.y = 100 * (this.startpos.y+0.5) / this.mapchips.length 
-    window.addEventListener('keydown',this.KeyDown); 
-    window.addEventListener('keyup',this.KeyUp); 
+  mounted: function () {
+    // this.pos.x = 100 * (this.startPos.x+0.5) / this.mapWidth
+    // this.pos.y = 100 * (this.startPos.y+0.5) / this.mapHeight
+    window.addEventListener('keydown',this.KeyDown);
+    window.addEventListener('keyup',this.KeyUp);
   } 
 } 
 </script> 
