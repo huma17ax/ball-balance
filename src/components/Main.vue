@@ -1,13 +1,9 @@
 <template>
 
     <div class="content">
-        <div v-if='permission==false'
-        style="z-index: 1; position: absolute; width: 100%; height: 100%;
-        background-color: #000;"
-        v-on:click='requestDeviceSensor()'>
-        </div>
-        <flame ref='flame' v-if='permission==true'></flame>
+        <flame ref='flame'></flame>
     </div>
+
 </template>
 
 <script>
@@ -36,17 +32,6 @@ export default {
     },
     run: function () {
       this.$refs.flame.run()
-    },
-    requestDeviceSensor: function () {
-      DeviceOrientationEvent.requestPermission()
-        .then(
-          (response) => {
-            if (response === 'granted') {
-              window.addEventListener('deviceorientation', this.getDeviceGyro)
-              this.permission = true
-            }
-          }
-        )
     }
   },
   watch: {
@@ -61,6 +46,7 @@ export default {
         this.$store.dispatch('manager/startUpdateAsync')
       })
     window.addEventListener('resize', this.windowResize)
+    window.addEventListener('deviceorientation', this.getDeviceGyro)
   },
   beforeDestroy: function () {
     window.removeEventListener('resize', this.windowResize)

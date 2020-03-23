@@ -56,6 +56,9 @@ const actions = {
     ]
     commit('setMapChips', chips)
     commit('setStartPos', {x: 1, y: 1})
+  },
+  setControllType ({commit, state}, type) {
+    commit('setControllType', type)
   }
 }
 
@@ -87,6 +90,9 @@ const mutations = {
     state.gyro.alpha = gyro.alpha
     state.gyro.beta = gyro.beta
     state.gyro.gamma = gyro.gamma
+  },
+  setControllType (state, type) {
+    state.controllType = type
   }
 }
 
