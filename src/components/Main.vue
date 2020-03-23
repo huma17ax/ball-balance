@@ -24,6 +24,9 @@ export default {
     windowResize: function () {
       this.$store.dispatch('manager/setScreenSize', {width: window.innerWidth, height: window.innerHeight})
     },
+    getDeviceGyro: function (dat) {
+      this.$store.dispatch('manager/setDeviceGyro', {alpha: dat.alpha, beta: dat.beta, gamma: dat.gamma})
+    },
     run: function () {
       this.$refs.flame.run()
     }
@@ -40,9 +43,11 @@ export default {
         this.$store.dispatch('manager/startUpdateAsync')
       })
     window.addEventListener('resize', this.windowResize)
+    window.addEventListener('deviceorientation', this.getDeviceGyro)
   },
   beforeDestroy: function () {
     window.removeEventListener('resize', this.windowResize)
+    window.removeEventListener('deviceorientation', this.getDeviceGyro)
     this.$store.dispatch('manager/stopUpdateAsync')
   }
 }

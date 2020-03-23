@@ -46,7 +46,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('manager', ['deltaTime', 'updateFlg', 'screenWidth', 'screenHeight', 'mapchips', 'mapWidth', 'mapHeight', 'startPos']),
+    ...mapState('manager', ['deltaTime', 'updateFlg', 'screenWidth', 'screenHeight', 'mapchips', 'mapWidth', 'mapHeight', 'startPos', 'controllType', 'gyro']),
     ...mapGetters('manager', ['mapchipSize']),
     posStyle: function () {
       return {top: 'calc(' + this.pos.y + '% - ' + this.ballSize / 2 + 'px)', left: 'calc(' + this.pos.x + '% - ' + this.ballSize / 2 + 'px)'}
@@ -81,18 +81,27 @@ export default {
     //   console.log(this.screenWidth + ' / ' + this.screenHeight)
       // 力をかける
       var force = {x: 0, y: 0}
-      if (this.pressedKey['DownArrow']) {
-        force.y += this.keyForce
+
+      if (this.controllType === 'keyboard') {
+        if (this.pressedKey['DownArrow']) {
+          force.y += this.keyForce
+        }
+        if (this.pressedKey['UpArrow']) {
+          force.y -= this.keyForce
+        }
+        if (this.pressedKey['LeftArrow']) {
+          force.x -= this.keyForce
+        }
+        if (this.pressedKey['RightArrow']) {
+          force.x += this.keyForce
+        }
       }
-      if (this.pressedKey['UpArrow']) {
-        force.y -= this.keyForce
+
+      if (this.controllType === 'gyro') {
+        force.x += this.keyForce * this.gyro.gamma / 90
+        force.y += this.keyForce * this.gyro.beta / 90
       }
-      if (this.pressedKey['LeftArrow']) {
-        force.x -= this.keyForce
-      }
-      if (this.pressedKey['RightArrow']) {
-        force.x += this.keyForce
-      }
+
       // 摩擦・速度と逆方向
       if (this.velocity.x !== 0 || this.velocity.y !== 0) {
         var diff = Math.sqrt(Math.pow(this.velocity.x, 2) + Math.pow(this.velocity.y, 2))

@@ -9,7 +9,10 @@ const state = {
   mapchips: [],
   mapWidth: undefined,
   mapHeight: undefined,
-  startPos: {x: 0, y: 0}
+  startPos: {x: 0, y: 0},
+  gyroAvailable: false,
+  gyro: {alpha: 0, beta: 0, gamma: 0},
+  controllType: 'gyro'
 }
 
 const getters = {
@@ -19,6 +22,13 @@ const getters = {
 }
 
 const actions = {
+  initState ({commit, state}) {
+
+  },
+  setDeviceGyro ({commit, state}, {alpha, beta, gamma}) {
+    console.log('getDeviceGyro')
+    commit('setDeviceGyro', {alpha: alpha, beta: beta, gamma: gamma})
+  },
   startUpdateAsync ({ commit, state }) {
     commit('setDeltaTime', 1 / state.fps)
     var id = setInterval(() => {
@@ -72,6 +82,11 @@ const mutations = {
   },
   setStartPos (state, pos) {
     state.startPos = pos
+  },
+  setDeviceGyro (state, gyro) {
+    state.gyro.alpha = gyro.alpha
+    state.gyro.beta = gyro.beta
+    state.gyro.gamma = gyro.gamma
   }
 }
 
