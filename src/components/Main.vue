@@ -4,7 +4,7 @@
         <div v-if='permission==false'
         style="z-index: 1; position: absolute; width: 100%; height: 100%;
         background-color: #000;"
-        onclick='requestDeviceSensor()'>
+        v-on:click='requestDeviceSensor()'>
         </div>
         <flame ref='flame' v-if='permission==true'></flame>
     </div>
