@@ -88,8 +88,8 @@ const mutations = {
   },
   setDeviceGyro (state, gyro) {
     state.gyro.alpha = (gyro.alpha == null ? 0 : gyro.alpha)
-    state.gyro.beta = (gyro.beta == null ? 0 : gyro.alpha)
-    state.gyro.gamma = (gyro.gamma == null ? 0 : gyro.alpha)
+    state.gyro.beta = (gyro.beta == null ? 0 : gyro.beta)
+    state.gyro.gamma = (gyro.gamma == null ? 0 : gyro.gamma)
   },
   setControllType (state, type) {
     state.controllType = type
