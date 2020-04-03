@@ -12,7 +12,8 @@ const state = {
   startPos: {x: 0, y: 0},
   gyroAvailable: false,
   gyro: {alpha: 0, beta: 0, gamma: 0},
-  controllType: 'gyro'
+  controllType: 'gyro',
+  isAvailableGyro: true
 }
 
 const getters = {
@@ -90,6 +91,11 @@ const mutations = {
     state.gyro.alpha = (gyro.alpha == null ? 0 : gyro.alpha)
     state.gyro.beta = (gyro.beta == null ? 0 : gyro.beta)
     state.gyro.gamma = (gyro.gamma == null ? 0 : gyro.gamma)
+    if (Math.abs(gyro.beta) < 90) {
+      state.isAvailableGyro = true
+    } else {
+      state.isAvailableGyro = false
+    }
   },
   setControllType (state, type) {
     state.controllType = type

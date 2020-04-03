@@ -46,7 +46,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('manager', ['deltaTime', 'updateFlg', 'screenWidth', 'screenHeight', 'mapchips', 'mapWidth', 'mapHeight', 'startPos', 'controllType', 'gyro']),
+    ...mapState('manager', ['deltaTime', 'updateFlg', 'screenWidth', 'screenHeight', 'mapchips', 'mapWidth', 'mapHeight', 'startPos', 'controllType', 'gyro', 'isAvailableGyro']),
     ...mapGetters('manager', ['mapchipSize']),
     posStyle: function () {
       return {top: 'calc(' + this.pos.y + '% - ' + this.ballSize / 2 + 'px)', left: 'calc(' + this.pos.x + '% - ' + this.ballSize / 2 + 'px)'}
@@ -98,7 +98,7 @@ export default {
         }
       }
 
-      if (this.controllType === 'gyro') {
+      if (this.controllType === 'gyro' && this.isAvailableGyro === true) {
         force.x += this.keyForce * this.gyro.gamma / 90
         force.y += this.keyForce * this.gyro.beta / 90
       }
