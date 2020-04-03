@@ -1,6 +1,11 @@
 <template>
 
     <div class="content">
+        {{ this.gyro.alpha }}
+        \
+        {{ this.gyro.beta }}
+        \
+        {{ this.gyro.gamma }}
         <flame ref='flame'></flame>
     </div>
 
@@ -21,7 +26,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('manager', ['deltaTime', 'updateFlg'])
+    ...mapState('manager', ['deltaTime', 'updateFlg', 'gyro'])
   },
   methods: {
     windowResize: function () {
