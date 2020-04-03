@@ -1,11 +1,9 @@
 <template>
 
     <div class="content">
-        {{ this.gyro.alpha }}
-        \
-        {{ this.gyro.beta }}
-        \
-        {{ this.gyro.gamma }}
+        <div> alpha: {{this.gyro.alpha}} </div>
+        <div> beta: {{ this.gyro.beta }} </div>
+        <div> gamma: {{ this.gyro.gamma }} </div>
         <flame ref='flame'></flame>
     </div>
 
