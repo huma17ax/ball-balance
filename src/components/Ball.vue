@@ -79,6 +79,9 @@ export default {
     },
     run: function () {
     //   console.log(this.screenWidth + ' / ' + this.screenHeight)
+      console.log('alpha: ' + this.gyro.alpha)
+      console.log('beta : ' + this.gyro.beta)
+      console.log('gamma: ' + this.gyro.gamma)
       // 力をかける
       var force = {x: 0, y: 0}
 
