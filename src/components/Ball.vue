@@ -6,14 +6,6 @@
         >
         </div>
 
-        <div
-        v-for="d in dots"
-        v-bind:key="d.id"
-        class = "dot"
-        v-bind:style = "dotsStyle(d.x,d.y)">
-        </div>
-        <div class="corn"
-        v-bind:style = "dotsStyle(corn.x,corn.y)"></div>
         <div class="vector"
         v-bind:style = "dotsStyle(pos.x+velocity.x/100 , pos.y+velocity.y/100)"></div>
     </div>
@@ -40,9 +32,7 @@ export default {
       friction: 96,
       repulsion: 0.5,
       collisionPoint: 10, // * 4
-      pressedKey: {},
-      dots: [],
-      corn: {x: 0, y: 0}
+      pressedKey: {}
     }
   },
   computed: {
@@ -79,7 +69,6 @@ export default {
     },
     run: function () {
     //   console.log(this.screenWidth + ' / ' + this.screenHeight)
-      console.log(this.gyro.gamma)
       // 力をかける
       var force = {x: 0, y: 0}
 
@@ -139,22 +128,22 @@ export default {
 
       // 上下左右
       var upside = {x: this.pos.x, y: this.pos.y - radiusY}
-      if (this.mapchips[Math.floor(upside.y / 100 * this.mapHeight)][Math.floor(upside.x / 100 * this.mapWidth)] === 'black') {
+      if (this.mapchips[Math.floor(upside.y / 100 * this.mapHeight)][Math.floor(upside.x / 100 * this.mapWidth)] === 'WALL') {
         this.pos.y = (Math.floor(upside.y / 100 * this.mapHeight) + 1) * 100 / this.mapHeight + radiusY
         this.velocity.y = -this.velocity.y * this.repulsion
       }
       var downside = {x: this.pos.x, y: this.pos.y + radiusY}
-      if (this.mapchips[Math.floor(downside.y / 100 * this.mapHeight)][Math.floor(downside.x / 100 * this.mapWidth)] === 'black') {
+      if (this.mapchips[Math.floor(downside.y / 100 * this.mapHeight)][Math.floor(downside.x / 100 * this.mapWidth)] === 'WALL') {
         this.pos.y = (Math.floor(downside.y / 100 * this.mapHeight)) * 100 / this.mapHeight - radiusY
         this.velocity.y = -this.velocity.y * this.repulsion
       }
       var leftside = {x: this.pos.x - radiusX, y: this.pos.y}
-      if (this.mapchips[Math.floor(leftside.y / 100 * this.mapHeight)][Math.floor(leftside.x / 100 * this.mapWidth)] === 'black') {
+      if (this.mapchips[Math.floor(leftside.y / 100 * this.mapHeight)][Math.floor(leftside.x / 100 * this.mapWidth)] === 'WALL') {
         this.pos.x = (Math.floor(leftside.x / 100 * this.mapWidth) + 1) * 100 / this.mapWidth + radiusX
         this.velocity.x = -this.velocity.x * this.repulsion
       }
       var rightside = {x: this.pos.x + radiusX, y: this.pos.y}
-      if (this.mapchips[Math.floor(rightside.y / 100 * this.mapHeight)][Math.floor(rightside.x / 100 * this.mapWidth)] === 'black') {
+      if (this.mapchips[Math.floor(rightside.y / 100 * this.mapHeight)][Math.floor(rightside.x / 100 * this.mapWidth)] === 'WALL') {
         this.pos.x = (Math.floor(rightside.x / 100 * this.mapWidth)) * 100 / this.mapWidth - radiusX
         this.velocity.x = -this.velocity.x * this.repulsion
       }
@@ -173,9 +162,11 @@ export default {
       }
 
       // そこが角であるかどうか
-      var isCorner = this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight) + (tend.y < 0 ? -1 : 1)][Math.floor(this.pos.x / 100 * this.mapWidth) + (tend.x < 0 ? -1 : 1)] === 'black'
-      isCorner = isCorner && this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight)][Math.floor(this.pos.x / 100 * this.mapWidth) + (tend.x < 0 ? -1 : 1)] === 'white'
-      isCorner = isCorner && this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight) + (tend.y < 0 ? -1 : 1)][Math.floor(this.pos.x / 100 * this.mapWidth)] === 'white'
+      var isCorner = this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight) + (tend.y < 0 ? -1 : 1)][Math.floor(this.pos.x / 100 * this.mapWidth) + (tend.x < 0 ? -1 : 1)] === 'WALL'
+      isCorner = isCorner && (this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight)][Math.floor(this.pos.x / 100 * this.mapWidth) + (tend.x < 0 ? -1 : 1)] === 'AIR' || this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight)][Math.floor(this.pos.x / 100 * this.mapWidth) + (tend.x < 0 ? -1 : 1)] === 'BAN')
+      isCorner = isCorner && (this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight) + (tend.y < 0 ? -1 : 1)][Math.floor(this.pos.x / 100 * this.mapWidth)] === 'AIR' || this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight) + (tend.y < 0 ? -1 : 1)][Math.floor(this.pos.x / 100 * this.mapWidth)] === 'BAN')
+      // isCorner = isCorner && (this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight)][Math.floor(this.pos.x / 100 * this.mapWidth) + (tend.x < 0 ? -1 : 1)] === 'AIR')
+      // isCorner = isCorner && (this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight) + (tend.y < 0 ? -1 : 1)][Math.floor(this.pos.x / 100 * this.mapWidth)] === 'AIR')
 
       if (isCorner) {
         //   console.log(this.mapchipSize)
@@ -211,6 +202,11 @@ export default {
       // 移動
       this.pos.x += this.velocity.x / 2 / this.mapWidth * this.deltaTime
       this.pos.y += this.velocity.y / 2 / this.mapHeight * this.deltaTime
+
+      // ゲームオーバー処理
+      if (this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight)][Math.floor(this.pos.x / 100 * this.mapWidth)] === 'BAN') {
+        this.$store.dispatch('manager/setGameOver', true)
+      }
     },
     KeyDown: function (e) {
       if (e.keyCode === 40) this.pressedKey['DownArrow'] = true
@@ -239,21 +235,9 @@ export default {
 .ball {
     position: absolute;
     border-radius: 50%;
-    background-color: red;
-}
-
-.dot {
-  position: absolute;
-  background-color: aqua;
-  height: 4px;
-  width:4px;
-}
-
-.corn {
-  position: absolute;
-  background-color: pink;
-  height: 4px;
-  width:4px;
+    background-color: white;
+    border: solid 3px  springgreen;
+    box-sizing: border-box;
 }
 
 .vector{

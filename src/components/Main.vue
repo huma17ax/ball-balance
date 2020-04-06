@@ -24,7 +24,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('manager', ['deltaTime', 'updateFlg', 'gyro'])
+    ...mapState('manager', ['deltaTime', 'updateFlg', 'gyro', 'gameOver'])
   },
   methods: {
     windowResize: function () {
@@ -35,6 +35,9 @@ export default {
     },
     run: function () {
       this.$refs.flame.run()
+      if (this.gameOver === true) {
+        this.$router.push('/')
+      }
     }
   },
   watch: {
@@ -44,6 +47,7 @@ export default {
   },
   mounted: function () {
     this.$store.dispatch('manager/setScreenSize', {width: window.innerWidth, height: window.innerHeight})
+    this.$store.dispatch('manager/setGameOver', false)
     this.$store.dispatch('manager/loadMapChips')
       .then(() => {
         this.$store.dispatch('manager/startUpdateAsync')
@@ -65,5 +69,6 @@ export default {
     height: 100%;
     width: 100%;
     overflow: hidden;
+    background-color: black;
 }
 </style>
