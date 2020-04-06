@@ -3,7 +3,7 @@
     class = "flame"
     v-bind:style="[flameStyle, marginStyle]"
     >
-        <div v-for="(row,index_r) in mapchips" v-bind:key="row.id"
+        <div v-for="(row,index_r) in mapImgs" v-bind:key="row.id"
         class = "maprow">
             <div v-for="(chip,index_c) in row" v-bind:key="chip.id"
             class = "mapchip"
@@ -32,15 +32,30 @@ export default {
       this.$refs.ball.run()
     },
     mapchipStyle: function (row, col) {
-      var color = this.mapchips[row][col]
-      return {
+      var image = this.mapImgs[row][col]
+      var ret = {
         'width': this.mapchipSize + 'px',
-        'height': this.mapchipSize + 'px',
-        'background-color': color}
+        'height': this.mapchipSize + 'px'
+      }
+
+      if (image === 'black') {
+        ret['background-color'] = 'black'
+        ret['border'] = 'solid 3px springgreen'
+      }
+      if (image === 'white') {
+        ret['background-color'] = 'black'
+      }
+      if (image === 'pink') {
+        ret['background-color'] = 'black'
+        ret['border-radius'] = '50%'
+        ret['border'] = 'solid 3px crimson'
+      }
+
+      return ret
     }
   },
   computed: {
-    ...mapState('manager', ['screenWidth', 'screenHeight', 'mapchips', 'mapWidth', 'mapHeight']),
+    ...mapState('manager', ['screenWidth', 'screenHeight', 'mapImgs', 'mapWidth', 'mapHeight']),
     ...mapGetters('manager', ['mapchipSize']),
     flameStyle: function () {
       var sizeW = this.mapchipSize * this.mapHeight
@@ -71,6 +86,7 @@ export default {
 }
 
 .mapchip {
-    background-color: grey;
+    background-color:gray;
+    box-sizing: border-box;
 }
 </style>

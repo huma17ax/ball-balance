@@ -7,13 +7,15 @@ const state = {
   screenWidth: undefined,
   screenHeight: undefined,
   mapchips: [],
+  mapImgs: [],
   mapWidth: undefined,
   mapHeight: undefined,
   startPos: {x: 0, y: 0},
   gyroAvailable: false,
   gyro: {alpha: 0, beta: 0, gamma: 0},
   controllType: 'gyro',
-  isAvailableGyro: true
+  isAvailableGyro: true,
+  gameOver: false
 }
 
 const getters = {
@@ -47,19 +49,32 @@ const actions = {
   loadMapChips ({ commit, state }) {
     // jsonファイルから読み込みたい
     var chips = [
+      ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
+      ['WALL', 'AIR', 'AIR', 'AIR', 'AIR', 'AIR', 'WALL'],
+      ['WALL', 'AIR', 'WALL', 'AIR', 'WALL', 'AIR', 'WALL'],
+      ['WALL', 'AIR', 'AIR', 'BAN', 'AIR', 'AIR', 'WALL'],
+      ['WALL', 'AIR', 'WALL', 'AIR', 'WALL', 'AIR', 'WALL'],
+      ['WALL', 'AIR', 'AIR', 'AIR', 'AIR', 'AIR', 'WALL'],
+      ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL']
+    ]
+    var images = [
       ['black', 'black', 'black', 'black', 'black', 'black', 'black'],
       ['black', 'white', 'white', 'white', 'white', 'white', 'black'],
       ['black', 'white', 'black', 'white', 'black', 'white', 'black'],
-      ['black', 'white', 'white', 'white', 'white', 'white', 'black'],
+      ['black', 'white', 'white', 'pink', 'white', 'white', 'black'],
       ['black', 'white', 'black', 'white', 'black', 'white', 'black'],
       ['black', 'white', 'white', 'white', 'white', 'white', 'black'],
       ['black', 'black', 'black', 'black', 'black', 'black', 'black']
     ]
     commit('setMapChips', chips)
+    commit('setMapImages', images)
     commit('setStartPos', {x: 1, y: 1})
   },
   setControllType ({commit, state}, type) {
     commit('setControllType', type)
+  },
+  setGameOver ({commit}, status) {
+    commit('setGameOver', status)
   }
 }
 
@@ -84,6 +99,9 @@ const mutations = {
     state.mapWidth = chips[0].length
     state.mapHeight = chips.length
   },
+  setMapImages (state, images) {
+    state.mapImgs = images
+  },
   setStartPos (state, pos) {
     state.startPos = pos
   },
@@ -99,6 +117,9 @@ const mutations = {
   },
   setControllType (state, type) {
     state.controllType = type
+  },
+  setGameOver (state, status) {
+    state.gameOver = status
   }
 }
 
