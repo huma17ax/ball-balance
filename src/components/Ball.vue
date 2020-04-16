@@ -6,8 +6,8 @@
         >
         </div>
 
-        <div class="vector"
-        v-bind:style = "dotsStyle(pos.x+velocity.x/100 , pos.y+velocity.y/100)"></div>
+        <!-- <div class="vector"
+        v-bind:style = "dotsStyle(pos.x+velocity.x/100 , pos.y+velocity.y/100)"></div> -->
     </div>
 </template>
 
@@ -36,7 +36,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('manager', ['deltaTime', 'updateFlg', 'screenWidth', 'screenHeight', 'mapchips', 'mapWidth', 'mapHeight', 'startPos', 'controllType', 'gyro', 'isAvailableGyro']),
+    ...mapState('manager', ['deltaTime', 'updateFlg', 'screenWidth', 'screenHeight', 'mapchips', 'mapWidth', 'mapHeight', 'startPos', 'controllType', 'gyro', 'isAvailableGyro', 'tileEffectQueue']),
     ...mapGetters('manager', ['mapchipSize']),
     posStyle: function () {
       return {top: 'calc(' + this.pos.y + '% - ' + this.ballSize / 2 + 'px)', left: 'calc(' + this.pos.x + '% - ' + this.ballSize / 2 + 'px)'}
@@ -92,6 +92,21 @@ export default {
         force.y += this.keyForce * this.gyro.beta / 90
       }
 
+      // 引力(BAN)
+      for (let i = -1; i < 2; i++) {
+        for (let j = -1; j < 2; j++) {
+          let y = Math.floor(this.pos.y / 100 * this.mapHeight)
+          let x = Math.floor(this.pos.x / 100 * this.mapWidth)
+
+          if (y + i >= 0 && x + j >= 0 && y + i < this.mapHeight && x + j < this.mapWidth &&
+          this.mapchips[y + i][x + j] === 'BAN' && Math.pow(this.mapchipSize * (y + i + 0.5) - this.pos.y / 100 * this.mapHeight * this.mapchipSize, 2) + Math.pow(this.mapchipSize * (x + j + 0.5) - this.pos.x / 100 * this.mapWidth * this.mapchipSize, 2) < Math.pow(this.mapchipSize / 2 + this.ballSize / 2, 2)) {
+            console.log('ban')
+            force.y += 5 * (this.mapchipSize * (y + i + 0.5) - this.pos.y / 100 * this.mapHeight * this.mapchipSize)
+            force.x += 5 * (this.mapchipSize * (x + j + 0.5) - this.pos.x / 100 * this.mapWidth * this.mapchipSize)
+          }
+        }
+      }
+
       // 摩擦・速度と逆方向
       if (this.velocity.x !== 0 || this.velocity.y !== 0) {
         var diff = Math.sqrt(Math.pow(this.velocity.x, 2) + Math.pow(this.velocity.y, 2))
@@ -131,21 +146,25 @@ export default {
       if (this.mapchips[Math.floor(upside.y / 100 * this.mapHeight)][Math.floor(upside.x / 100 * this.mapWidth)] === 'WALL') {
         this.pos.y = (Math.floor(upside.y / 100 * this.mapHeight) + 1) * 100 / this.mapHeight + radiusY
         this.velocity.y = -this.velocity.y * this.repulsion
+        this.tileEffectQueue.push({act: 'clp', y: Math.floor(upside.y / 100 * this.mapHeight), x: Math.floor(upside.x / 100 * this.mapWidth), at: {x: upside.x / 100 * this.mapWidth - Math.floor(upside.x / 100 * this.mapWidth), y: 1}, strg: Math.abs(this.velocity.y)})
       }
       var downside = {x: this.pos.x, y: this.pos.y + radiusY}
       if (this.mapchips[Math.floor(downside.y / 100 * this.mapHeight)][Math.floor(downside.x / 100 * this.mapWidth)] === 'WALL') {
         this.pos.y = (Math.floor(downside.y / 100 * this.mapHeight)) * 100 / this.mapHeight - radiusY
         this.velocity.y = -this.velocity.y * this.repulsion
+        this.tileEffectQueue.push({act: 'clp', y: Math.floor(downside.y / 100 * this.mapHeight), x: Math.floor(downside.x / 100 * this.mapWidth), at: {x: upside.x / 100 * this.mapWidth - Math.floor(upside.x / 100 * this.mapWidth), y: 0}, strg: Math.abs(this.velocity.y)})
       }
       var leftside = {x: this.pos.x - radiusX, y: this.pos.y}
       if (this.mapchips[Math.floor(leftside.y / 100 * this.mapHeight)][Math.floor(leftside.x / 100 * this.mapWidth)] === 'WALL') {
         this.pos.x = (Math.floor(leftside.x / 100 * this.mapWidth) + 1) * 100 / this.mapWidth + radiusX
         this.velocity.x = -this.velocity.x * this.repulsion
+        this.tileEffectQueue.push({act: 'clp', y: Math.floor(leftside.y / 100 * this.mapHeight), x: Math.floor(leftside.x / 100 * this.mapWidth), at: {x: 1, y: leftside.y / 100 * this.mapHeight - Math.floor(leftside.y / 100 * this.mapHeight)}, strg: Math.abs(this.velocity.x)})
       }
       var rightside = {x: this.pos.x + radiusX, y: this.pos.y}
       if (this.mapchips[Math.floor(rightside.y / 100 * this.mapHeight)][Math.floor(rightside.x / 100 * this.mapWidth)] === 'WALL') {
         this.pos.x = (Math.floor(rightside.x / 100 * this.mapWidth)) * 100 / this.mapWidth - radiusX
         this.velocity.x = -this.velocity.x * this.repulsion
+        this.tileEffectQueue.push({act: 'clp', y: Math.floor(rightside.y / 100 * this.mapHeight), x: Math.floor(rightside.x / 100 * this.mapWidth), at: {x: 0, y: leftside.y / 100 * this.mapHeight - Math.floor(leftside.y / 100 * this.mapHeight)}, strg: Math.abs(this.velocity.x)})
       }
 
       // 弧  右上左下
@@ -163,8 +182,8 @@ export default {
 
       // そこが角であるかどうか
       var isCorner = this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight) + (tend.y < 0 ? -1 : 1)][Math.floor(this.pos.x / 100 * this.mapWidth) + (tend.x < 0 ? -1 : 1)] === 'WALL'
-      isCorner = isCorner && (this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight)][Math.floor(this.pos.x / 100 * this.mapWidth) + (tend.x < 0 ? -1 : 1)] === 'AIR' || this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight)][Math.floor(this.pos.x / 100 * this.mapWidth) + (tend.x < 0 ? -1 : 1)] === 'BAN')
-      isCorner = isCorner && (this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight) + (tend.y < 0 ? -1 : 1)][Math.floor(this.pos.x / 100 * this.mapWidth)] === 'AIR' || this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight) + (tend.y < 0 ? -1 : 1)][Math.floor(this.pos.x / 100 * this.mapWidth)] === 'BAN')
+      isCorner = isCorner && (this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight)][Math.floor(this.pos.x / 100 * this.mapWidth) + (tend.x < 0 ? -1 : 1)] !== 'WALL')
+      isCorner = isCorner && (this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight) + (tend.y < 0 ? -1 : 1)][Math.floor(this.pos.x / 100 * this.mapWidth)] !== 'WALL')
       // isCorner = isCorner && (this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight)][Math.floor(this.pos.x / 100 * this.mapWidth) + (tend.x < 0 ? -1 : 1)] === 'AIR')
       // isCorner = isCorner && (this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight) + (tend.y < 0 ? -1 : 1)][Math.floor(this.pos.x / 100 * this.mapWidth)] === 'AIR')
 
@@ -183,9 +202,11 @@ export default {
 
           // 位置の調整
           var polCollision = this.Rec2Pol(this.mapchipSize * this.mapWidth * (this.pos.x - corner.x) / 100, this.mapchipSize * this.mapHeight * (this.pos.y - corner.y) / 100)
-          var rec = this.Pol2Rec(this.ballSize / 2, polCollision.deg)
+          var rec = this.Pol2Rec(this.ballSize / 2 + 1, polCollision.deg)
           this.pos.x = corner.x + (rec.x / this.mapchipSize / this.mapWidth) * 100
           this.pos.y = corner.y + (rec.y / this.mapchipSize / this.mapHeight) * 100
+
+          this.tileEffectQueue.push({act: 'clp', y: Math.floor(this.pos.y / 100 * this.mapHeight) + (tend.y < 0 ? -1 : 1), x: Math.floor(this.pos.x / 100 * this.mapWidth) + (tend.x < 0 ? -1 : 1), at: {x: (tend.x < 0 ? 1 : 0), y: (tend.y < 0 ? 1 : 0)}, strg: this.Rec2Pol(this.velocity.x, this.velocity.y).c})
 
           // 反発
           if (this.velocity.x !== 0 && this.velocity.y !== 0) {
@@ -205,7 +226,14 @@ export default {
 
       // ゲームオーバー処理
       if (this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight)][Math.floor(this.pos.x / 100 * this.mapWidth)] === 'BAN') {
-        this.$store.dispatch('manager/setGameOver', true)
+        if (Math.pow(this.mapchipSize * (Math.floor(this.pos.y / 100 * this.mapHeight) + 0.5) - this.pos.y / 100 * this.mapHeight * this.mapchipSize, 2) + Math.pow(this.mapchipSize * (Math.floor(this.pos.x / 100 * this.mapWidth) + 0.5) - this.pos.x / 100 * this.mapWidth * this.mapchipSize, 2) < Math.pow(this.mapchipSize / 2, 2)) {
+          this.$store.dispatch('manager/setGameOver', true)
+        }
+      }
+
+      // ゲームクリア処理
+      if (this.mapchips[Math.floor(this.pos.y / 100 * this.mapHeight)][Math.floor(this.pos.x / 100 * this.mapWidth)] === 'GOAL') {
+        this.$store.dispatch('manager/setGameClear', true)
       }
     },
     KeyDown: function (e) {
