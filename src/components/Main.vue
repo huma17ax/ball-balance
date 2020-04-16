@@ -1,9 +1,6 @@
 <template>
 
     <div class="content">
-        <div> alpha: {{this.gyro.alpha}} </div>
-        <div> beta: {{ this.gyro.beta }} </div>
-        <div> gamma: {{ this.gyro.gamma }} </div>
         <flame ref='flame'></flame>
     </div>
 
@@ -24,7 +21,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('manager', ['deltaTime', 'updateFlg', 'gyro', 'gameOver'])
+    ...mapState('manager', ['deltaTime', 'updateFlg', 'gyro', 'gameOver', 'gameClear'])
   },
   methods: {
     windowResize: function () {
@@ -38,6 +35,9 @@ export default {
       if (this.gameOver === true) {
         this.$router.push('/')
       }
+      if (this.gameClear === true) {
+        this.$router.push('/')
+      }
     }
   },
   watch: {
@@ -48,6 +48,7 @@ export default {
   mounted: function () {
     this.$store.dispatch('manager/setScreenSize', {width: window.innerWidth, height: window.innerHeight})
     this.$store.dispatch('manager/setGameOver', false)
+    this.$store.dispatch('manager/setGameClear', false)
     this.$store.dispatch('manager/loadMapChips')
       .then(() => {
         this.$store.dispatch('manager/startUpdateAsync')

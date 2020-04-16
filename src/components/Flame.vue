@@ -5,10 +5,10 @@
     >
         <div v-for="(row,index_r) in mapImgs" v-bind:key="row.id"
         class = "maprow">
-            <div v-for="(chip,index_c) in row" v-bind:key="chip.id"
-            class = "mapchip"
-            v-bind:style="mapchipStyle(index_r,index_c)">
-            </div>
+            <tile v-for="(chip,index_c) in row" v-bind:key="chip.id"
+            v-bind:attr="{pos_r: index_r, pos_c: index_c}"
+            ref="tile">
+            </tile>
         </div>
         <ball ref="ball"></ball>
     </div>
@@ -16,12 +16,14 @@
 
 <script>
 import ball from './Ball'
+import tile from './Tile'
 import {mapState, mapGetters} from 'vuex'
 
 export default {
   name: 'flame',
   components: {
-    ball
+    ball,
+    tile
   },
   data: function () {
     return {
@@ -30,6 +32,9 @@ export default {
   methods: {
     run: function () {
       this.$refs.ball.run()
+      for (var tile of this.$refs.tile) {
+        tile.run()
+      }
     },
     mapchipStyle: function (row, col) {
       var image = this.mapImgs[row][col]

@@ -1,21 +1,27 @@
 
 const state = {
+  // システム
   fps: 60,
   deltaTime: 0,
   intervalID: undefined,
   updateFlg: true,
   screenWidth: undefined,
   screenHeight: undefined,
+  // ゲーム
   mapchips: [],
   mapImgs: [],
   mapWidth: undefined,
   mapHeight: undefined,
   startPos: {x: 0, y: 0},
+  gameOver: false,
+  gameClear: false,
+  // 操作
   gyroAvailable: false,
   gyro: {alpha: 0, beta: 0, gamma: 0},
   controllType: 'gyro',
   isAvailableGyro: true,
-  gameOver: false
+  // タイルエフェクト
+  tileEffectQueue: []
 }
 
 const getters = {
@@ -50,21 +56,21 @@ const actions = {
     // jsonファイルから読み込みたい
     var chips = [
       ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
-      ['WALL', 'AIR', 'AIR', 'AIR', 'AIR', 'AIR', 'WALL'],
-      ['WALL', 'AIR', 'WALL', 'AIR', 'WALL', 'AIR', 'WALL'],
+      ['WALL', 'AIR', 'AIR', 'AIR', 'AIR', 'WALL', 'WALL'],
+      ['WALL', 'AIR', 'AIR', 'AIR', 'BAN', 'AIR', 'WALL'],
       ['WALL', 'AIR', 'AIR', 'BAN', 'AIR', 'AIR', 'WALL'],
-      ['WALL', 'AIR', 'WALL', 'AIR', 'WALL', 'AIR', 'WALL'],
-      ['WALL', 'AIR', 'AIR', 'AIR', 'AIR', 'AIR', 'WALL'],
+      ['WALL', 'AIR', 'BAN', 'AIR', 'AIR', 'AIR', 'WALL'],
+      ['WALL', 'WALL', 'AIR', 'AIR', 'AIR', 'GOAL', 'WALL'],
       ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL']
     ]
     var images = [
-      ['black', 'black', 'black', 'black', 'black', 'black', 'black'],
-      ['black', 'white', 'white', 'white', 'white', 'white', 'black'],
-      ['black', 'white', 'black', 'white', 'black', 'white', 'black'],
-      ['black', 'white', 'white', 'pink', 'white', 'white', 'black'],
-      ['black', 'white', 'black', 'white', 'black', 'white', 'black'],
-      ['black', 'white', 'white', 'white', 'white', 'white', 'black'],
-      ['black', 'black', 'black', 'black', 'black', 'black', 'black']
+      ['wall1', 'wall1', 'wall1', 'wall1', 'wall1', 'wall1', 'wall1'],
+      ['wall1', 'air1', 'air1', 'air1', 'air1', 'wall1', 'wall1'],
+      ['wall1', 'air1', 'air1', 'air1', 'ban1', 'air1', 'wall1'],
+      ['wall1', 'air1', 'air1', 'ban1', 'air1', 'air1', 'wall1'],
+      ['wall1', 'air1', 'ban1', 'air1', 'air1', 'air1', 'wall1'],
+      ['wall1', 'wall1', 'air1', 'air1', 'air1', 'goal1', 'wall1'],
+      ['wall1', 'wall1', 'wall1', 'wall1', 'wall1', 'wall1', 'wall1']
     ]
     commit('setMapChips', chips)
     commit('setMapImages', images)
@@ -75,6 +81,9 @@ const actions = {
   },
   setGameOver ({commit}, status) {
     commit('setGameOver', status)
+  },
+  setGameClear ({commit}, status) {
+    commit('setGameClear', status)
   }
 }
 
@@ -120,6 +129,9 @@ const mutations = {
   },
   setGameOver (state, status) {
     state.gameOver = status
+  },
+  setGameClear (state, status) {
+    state.gameClear = status
   }
 }
 
