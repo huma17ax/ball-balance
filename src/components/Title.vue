@@ -94,7 +94,8 @@ export default {
               reject(new Error('sensor request is rejected'))
             }
           })
-          .catch(() => {
+          .catch((e) => {
+            alert(e)
             reject(new Error('request error'))
           })
       })
