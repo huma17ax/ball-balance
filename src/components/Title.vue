@@ -49,7 +49,10 @@ export default {
                 this.$store.dispatch('manager/setControllType', 'gyro')
                 this.gameStart()
               })
-              .catch(() => { /* 拒否 */ })
+              .catch(() => {
+                // 拒否
+                this.message = 'アクセスが拒否されました'
+              })
           } else {
             // モバイル端末ではない or iOS12以下で許可なし
             this.message = 'Keyboard操作で開始します...'
