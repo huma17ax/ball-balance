@@ -88,8 +88,8 @@ export default {
       }
 
       if (this.controllType === 'gyro' && this.isAvailableGyro === true) {
-        force.x += this.keyForce * this.gyro.gamma / 30
-        force.y += this.keyForce * this.gyro.beta / 30
+        force.x += this.keyForce * this.gyro.gamma / 20
+        force.y += this.keyForce * this.gyro.beta / 20
       }
 
       // 引力(BAN)
