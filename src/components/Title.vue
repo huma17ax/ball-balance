@@ -42,17 +42,33 @@ export default {
             // iOS13以上(リクエスト)
             this.message = 'センサーへのアクセスを承認してください'
             console.log('!')
-            this.requestDeviceSensor()
-              .then(() => {
-                // 承諾
-                this.message = 'Gyro操作で開始します ...'
-                this.$store.dispatch('manager/setControllType', 'gyro')
-                this.gameStart()
+            DeviceOrientationEvent.requestPermission()
+              .then((response) => {
+                if (response === 'granted') {
+                  // 承諾
+                  this.message = 'Gyro操作で開始します ...'
+                  this.$store.dispatch('manager/setControllType', 'gyro')
+                  this.gameStart()
+                } else {
+                  alert(response)
+                  this.message = 'アクセスが拒否されました'
+                }
               })
-              .catch(() => {
-                // 拒否
+              .catch((e) => {
+                alert(e)
                 this.message = 'アクセスが拒否されました'
               })
+            // this.requestDeviceSensor()
+            //   .then(() => {
+            //     // 承諾
+            //     this.message = 'Gyro操作で開始します ...'
+            //     this.$store.dispatch('manager/setControllType', 'gyro')
+            //     this.gameStart()
+            //   })
+            //   .catch(() => {
+            //     // 拒否
+            //     this.message = 'アクセスが拒否されました'
+            //   })
           } else {
             // モバイル端末ではない or iOS12以下で許可なし
             this.message = 'Keyboard操作で開始します...'
