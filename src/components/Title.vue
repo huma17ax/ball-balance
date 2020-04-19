@@ -29,53 +29,90 @@ export default {
   methods: {
     controllSetting: function () {
       this.message = 'Checking Gyro Sensor ...'
-      this.sensorVerification()
-        .then(() => {
-          // ジャイロ動く
-          this.message = 'Gyro操作で開始します ...'
-          this.$store.dispatch('manager/setControllType', 'gyro')
-          this.gameStart()
-        })
-        .catch(() => {
-          // ジャイロ動かない
-          if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
-            // iOS13以上(リクエスト)
-            this.message = 'センサーへのアクセスを承認してください'
-            console.log('!')
-            DeviceOrientationEvent.requestPermission()
-              .then((response) => {
-                if (response === 'granted') {
-                  // 承諾
-                  this.message = 'Gyro操作で開始します ...'
-                  this.$store.dispatch('manager/setControllType', 'gyro')
-                  this.gameStart()
-                } else {
-                  alert(response)
-                  this.message = 'アクセスが拒否されました'
-                }
-              })
-              .catch((e) => {
-                alert(e)
-                this.message = 'アクセスが拒否されました'
-              })
-            // this.requestDeviceSensor()
-            //   .then(() => {
-            //     // 承諾
-            //     this.message = 'Gyro操作で開始します ...'
-            //     this.$store.dispatch('manager/setControllType', 'gyro')
-            //     this.gameStart()
-            //   })
-            //   .catch(() => {
-            //     // 拒否
-            //     this.message = 'アクセスが拒否されました'
-            //   })
-          } else {
-            // モバイル端末ではない or iOS12以下で許可なし
+      if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        // iOS13以上(リクエスト)
+        this.message = 'センサーへのアクセスを承認してください'
+        DeviceOrientationEvent.requestPermission()
+          .then((response) => {
+            if (response === 'granted') {
+              // 承諾
+              this.message = 'Gyro操作で開始します ...'
+              this.$store.dispatch('manager/setControllType', 'gyro')
+              this.gameStart()
+            } else {
+              // 拒否
+              alert(response)
+              this.message = 'アクセスが拒否されました'
+            }
+          })
+          .catch((e) => {
+            // リクエストエラー
+            alert(e)
+            this.message = 'アクセスが拒否されました'
+          })
+      } else {
+        // iOS12以下 or Android or モバイル端末ではない
+        this.sensorVerification()
+          .then(() => {
+            // ジャイロ動く(Android or iOS12以下許可あり)
+            this.message = 'Gyro操作で開始します ...'
+            this.$store.dispatch('manager/setControllType', 'gyro')
+            this.gameStart()
+          })
+          .catch(() => {
+            // ジャイロ動かない(モバイル端末ではない or iOS12以下許可なし)
             this.message = 'Keyboard操作で開始します...'
             this.$store.dispatch('manager/setControllType', 'keyboard')
             this.gameStart()
-          }
-        })
+          })
+      }
+      // this.sensorVerification()
+      //   .then(() => {
+      //     // ジャイロ動く
+      //     this.message = 'Gyro操作で開始します ...'
+      //     this.$store.dispatch('manager/setControllType', 'gyro')
+      //     this.gameStart()
+      //   })
+      //   .catch(() => {
+      //     // ジャイロ動かない
+      //     if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      //       // iOS13以上(リクエスト)
+      //       this.message = 'センサーへのアクセスを承認してください'
+      //       console.log('!')
+      //       DeviceOrientationEvent.requestPermission()
+      //         .then((response) => {
+      //           if (response === 'granted') {
+      //             // 承諾
+      //             this.message = 'Gyro操作で開始します ...'
+      //             this.$store.dispatch('manager/setControllType', 'gyro')
+      //             this.gameStart()
+      //           } else {
+      //             alert(response)
+      //             this.message = 'アクセスが拒否されました'
+      //           }
+      //         })
+      //         .catch((e) => {
+      //           alert(e)
+      //           this.message = 'アクセスが拒否されました'
+      //         })
+      //       // this.requestDeviceSensor()
+      //       //   .then(() => {
+      //       //     // 承諾
+      //       //     this.message = 'Gyro操作で開始します ...'
+      //       //     this.$store.dispatch('manager/setControllType', 'gyro')
+      //       //     this.gameStart()
+      //       //   })
+      //       //   .catch(() => {
+      //       //     // 拒否
+      //       //     this.message = 'アクセスが拒否されました'
+      //       //   })
+      //     } else {
+      //       // モバイル端末ではない or iOS12以下で許可なし
+      //       this.message = 'Keyboard操作で開始します...'
+      //       this.$store.dispatch('manager/setControllType', 'keyboard')
+      //       this.gameStart()
+      //     }
+      //   })
     },
     sensorVerification: function () {
       window.addEventListener('deviceorientation', this.checkSensor, false)
