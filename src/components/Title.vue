@@ -154,6 +154,7 @@ export default {
       })
     },
     gameStart: function () {
+      this.$store.dispatch('manager/loadMapChips')
       setTimeout(() => {
         this.$router.push('/game')
       }, 1000)

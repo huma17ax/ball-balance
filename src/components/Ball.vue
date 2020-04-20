@@ -250,8 +250,9 @@ export default {
     }
   },
   mounted: function () {
-    // this.pos.x = 100 * (this.startPos.x+0.5) / this.mapWidth
-    // this.pos.y = 100 * (this.startPos.y+0.5) / this.mapHeight
+    console.log('ball: mounted')
+    this.pos.x = 100 * (this.startPos.x + 0.5) / this.mapWidth
+    this.pos.y = 100 * (this.startPos.y + 0.5) / this.mapHeight
     window.addEventListener('keydown', this.KeyDown)
     window.addEventListener('keyup', this.KeyUp)
   }
