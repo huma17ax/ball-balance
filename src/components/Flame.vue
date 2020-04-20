@@ -63,13 +63,13 @@ export default {
     ...mapState('manager', ['screenWidth', 'screenHeight', 'mapImgs', 'mapWidth', 'mapHeight']),
     ...mapGetters('manager', ['mapchipSize']),
     flameStyle: function () {
-      var sizeW = this.mapchipSize * this.mapHeight
-      var sizeH = this.mapchipSize * this.mapWidth
+      var sizeW = this.mapchipSize * this.mapWidth
+      var sizeH = this.mapchipSize * this.mapHeight
       return {'width': sizeW + 'px', 'height': sizeH + 'px'}
     },
     marginStyle: function () {
-      var sizeTB = (this.screenHeight - this.mapchipSize * this.mapWidth) / 2
-      var sizeLR = (this.screenWidth - this.mapchipSize * this.mapHeight) / 2
+      var sizeLR = (this.screenWidth - this.mapchipSize * this.mapWidth) / 2
+      var sizeTB = (this.screenHeight - this.mapchipSize * this.mapHeight) / 2
       return {
         'margin-top': sizeTB + 'px',
         'margin-bottom': sizeTB + 'px',

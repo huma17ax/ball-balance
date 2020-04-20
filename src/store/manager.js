@@ -1,4 +1,6 @@
 
+import mapDataPool from '@/assets/mapData.json'
+
 const state = {
   // システム
   fps: 60,
@@ -8,6 +10,7 @@ const state = {
   screenWidth: undefined,
   screenHeight: undefined,
   // ゲーム
+  mapDataPool: mapDataPool,
   mapchips: [],
   mapImgs: [],
   mapWidth: undefined,
@@ -54,27 +57,13 @@ const actions = {
   },
   loadMapChips ({ commit, state }) {
     // jsonファイルから読み込みたい
-    var chips = [
-      ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
-      ['WALL', 'AIR', 'AIR', 'AIR', 'AIR', 'WALL', 'WALL'],
-      ['WALL', 'AIR', 'AIR', 'AIR', 'BAN', 'AIR', 'WALL'],
-      ['WALL', 'AIR', 'AIR', 'BAN', 'AIR', 'AIR', 'WALL'],
-      ['WALL', 'AIR', 'BAN', 'AIR', 'AIR', 'AIR', 'WALL'],
-      ['WALL', 'WALL', 'AIR', 'AIR', 'AIR', 'GOAL', 'WALL'],
-      ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL']
-    ]
-    var images = [
-      ['wall1', 'wall1', 'wall1', 'wall1', 'wall1', 'wall1', 'wall1'],
-      ['wall1', 'air1', 'air1', 'air1', 'air1', 'wall1', 'wall1'],
-      ['wall1', 'air1', 'air1', 'air1', 'ban1', 'air1', 'wall1'],
-      ['wall1', 'air1', 'air1', 'ban1', 'air1', 'air1', 'wall1'],
-      ['wall1', 'air1', 'ban1', 'air1', 'air1', 'air1', 'wall1'],
-      ['wall1', 'wall1', 'air1', 'air1', 'air1', 'goal1', 'wall1'],
-      ['wall1', 'wall1', 'wall1', 'wall1', 'wall1', 'wall1', 'wall1']
-    ]
+    let id = Math.floor(Math.random() * state.mapDataPool.length)
+    var chips = state.mapDataPool[id]['chips']
+    var images = state.mapDataPool[id]['images']
+    var start = state.mapDataPool[id]['start']
     commit('setMapChips', chips)
     commit('setMapImages', images)
-    commit('setStartPos', {x: 1, y: 1})
+    commit('setStartPos', start)
   },
   setControllType ({commit, state}, type) {
     commit('setControllType', type)

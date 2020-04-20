@@ -49,10 +49,7 @@ export default {
     this.$store.dispatch('manager/setScreenSize', {width: window.innerWidth, height: window.innerHeight})
     this.$store.dispatch('manager/setGameOver', false)
     this.$store.dispatch('manager/setGameClear', false)
-    this.$store.dispatch('manager/loadMapChips')
-      .then(() => {
-        this.$store.dispatch('manager/startUpdateAsync')
-      })
+    this.$store.dispatch('manager/startUpdateAsync')
     window.addEventListener('resize', this.windowResize)
     window.addEventListener('deviceorientation', this.getDeviceGyro)
   },
