@@ -22,7 +22,7 @@ export default {
   name: 'Title',
   data: function () {
     return {
-      message: 'Controll Setting',
+      message: 'ゲーム開始',
       doGyro: false
     }
   },
